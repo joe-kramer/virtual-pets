@@ -143,8 +143,58 @@ public class MonsterTest {
   public void monster_foodLevelCannotGoBeyondMaxValue(){
     Monster testMonster = new Monster("Bubbles", 1);
     for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_FOOD_LEVEL + 2); i++){
-      testMonster.feed();
+      try {
+        testMonster.feed();
+      } catch (UnsupportedOperationException exception) {
+        //we don't necessarily need to do anything with the exception after we catch it; we simply need to catch it to prevent JUnit from halting, and the test from failing unnecessarily.
+      }
     }
     assertTrue(testMonster.getFoodLevel() <= Monster.MAX_FOOD_LEVEL);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void feed_throwsExceptionIfFoodLevelIsAtMaxValue(){
+    Monster testMonster = new Monster("Bubbles", 1);
+    for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_FOOD_LEVEL); i++){
+      testMonster.feed();
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void play_throwsExceptionIfPlayLevelIsAtMaxValue(){
+    Monster testMonster = new Monster("Bubbles", 1);
+    for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_PLAY_LEVEL); i++){
+      testMonster.play();
+    }
+  }
+
+  @Test
+  public void monster_playLevelCannotGoBeyondMaxValue(){
+    Monster testMonster = new Monster("Bubbles", 1);
+    for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_PLAY_LEVEL); i++){
+      try {
+        testMonster.play();
+      } catch (UnsupportedOperationException exception){ }
+    }
+    assertTrue(testMonster.getPlayLevel() <= Monster.MAX_PLAY_LEVEL);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void sleep_throwsExceptionIfSleepLevelIsAtMaxValue(){
+    Monster testMonster = new Monster("Bubbles", 1);
+    for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_SLEEP_LEVEL); i++){
+      testMonster.sleep();
+    }
+  }
+
+  @Test
+  public void monster_sleepLevelCannotGoBeyondMaxValue(){
+    Monster testMonster = new Monster("Bubbles", 1);
+    for(int i = Monster.MIN_ALL_LEVELS; i <= (Monster.MAX_SLEEP_LEVEL); i++){
+      try {
+        testMonster.sleep();
+      } catch (UnsupportedOperationException exception){ }
+    }
+    assertTrue(testMonster.getSleepLevel() <= Monster.MAX_SLEEP_LEVEL);
   }
 }
