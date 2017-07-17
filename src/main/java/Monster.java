@@ -1,6 +1,8 @@
 import org.sql2o.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Timestamp;
+import java.util.Date;
 
 public class Monster {
   private String name;
@@ -70,7 +72,12 @@ public class Monster {
   public void play(){
     if (playLevel >= MAX_PLAY_LEVEL) {
       throw new UnsupportedOperationException("You cannot play with monster anymore!");
-    }
+    } try(Connection con = DB.sql2o.open()) {
+      String sql = "UPDATE monsters SET lastplayed = now() WHERE id = :id";
+      con.createQuery(sql)
+        .addParameter("id", id)
+        .executeUpdate();
+      }
     playLevel++;
   }
 
@@ -78,19 +85,47 @@ public class Monster {
     if (sleepLevel >= MAX_SLEEP_LEVEL) {
       throw new UnsupportedOperationException("You cannot make your monster sleep anymore!");
     }
+    try (Connection con = DB.sql2o.open()) {
+      String sql = "UPDATE monsters SET lastslept = now() WHERE id = :id;";
+      con.createQuery(sql)
+        .addParameter("id", id)
+        .executeUpdate();
+    }
     sleepLevel++;
   }
+
+  public Timestamp getBirthday(){
+    return birthday;
+  }
+
+  public Timestamp getLastSlept() {
+    return lastSlept;
+  }
+
+  public Timestamp getLastAte() {
+    return lastAte;
+  }
+
+  public Timestamp getLastPlayed() {
+    return lastPlayed;
+  }
+
 
   public void feed(){
     if (foodLevel >= MAX_FOOD_LEVEL) {
       throw new UnsupportedOperationException("You cannot feed your monster anymore!");
-    }
+    } try(Connection con = DB.sql2o.open()) {
+      String sql = "UPDATE monsters SET lastate = now() WHERE id = :id";
+      con.createQuery(sql)
+        .addParameter("id", id)
+        .executeUpdate();
+      }
     foodLevel++;
   }
 
   public void save() {
     try(Connection con = DB.sql2o.open()) {
-      String sql = "INSERT INTO monsters (name, personid) VALUES (:name, :personId)";
+      String sql = "INSERT INTO monsters (name, personid, birthday, lastate, lastplayed, lastslept) VALUES (:name, :personId, now(), now(), now(), now())";
       this.id = (int) con.createQuery(sql, true)
         .addParameter("name", this.name)
         .addParameter("personId", this.personId)
