@@ -241,4 +241,40 @@ public class MonsterTest {
     assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastSlept));
   }
 
+  @Test
+  public void timer_executesDepleteLevelsMethod() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    int firstPlayLevel = testMonster.getPlayLevel();
+    testMonster.startTimer();
+    try {
+      Thread.sleep(6000);
+    } catch (InterruptedException exception){}
+    int secondPlayLevel = testMonster.getPlayLevel();
+    assertTrue(firstPlayLevel > secondPlayLevel);
+  }
+
+  public void startTimer(){
+    Monster currentMonster = this;
+    TimerTask timerTask = new TimerTask(){
+      @Override
+      public void run() {
+        if (currentMonster.isAlive() == false){
+          cancel();
+        }
+        depleteLevels();
+      }
+    };
+    this.timer.schedule(timerTask, 0, 600);
+  }
+
+  @Test
+  public void timer_haltsAfterMonsterDies() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.startTimer();
+    try {
+      Thread.sleep(6000);
+    } catch (InterruptedException exception){}
+    assertFalse(testMonster.isAlive());
+    assertTrue(testMonster.getFoodLevel() >= 0);
+  }
 }

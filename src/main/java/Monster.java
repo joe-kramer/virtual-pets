@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Monster {
   private String name;
@@ -11,6 +13,7 @@ public class Monster {
   private int foodLevel;
   private int sleepLevel;
   private int playLevel;
+  private Timer timer;
 
   private Timestamp birthday;
   private Timestamp lastSlept;
@@ -28,6 +31,7 @@ public class Monster {
     this.playLevel = MAX_PLAY_LEVEL / 2;
     this.sleepLevel = MAX_SLEEP_LEVEL / 2;
     this.foodLevel = MAX_FOOD_LEVEL / 2;
+    timer = new Timer();
   }
 
   public String getName(){
@@ -64,9 +68,11 @@ public class Monster {
   }
 
   public void depleteLevels(){
-    playLevel--;
-    foodLevel--;
-    sleepLevel--;
+    if (isAlive()) {
+      playLevel--;
+      foodLevel--;
+      sleepLevel--;
+    }
   }
 
   public void play(){
