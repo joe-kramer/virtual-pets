@@ -141,13 +141,6 @@ public abstract class Monster {
     }
   }
 
-  public static List<Monster> all() {
-    String sql = "SELECT * FROM monsters";
-    try(Connection con = DB.sql2o.open()) {
-      return con.createQuery(sql).executeAndFetch(Monster.class);
-    }
-  }
-
   @Override
   public boolean equals(Object otherMonster){
     if (!(otherMonster instanceof Monster)) {
