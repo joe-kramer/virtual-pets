@@ -131,14 +131,18 @@ public abstract class Monster {
     }
   }
 
-  public static Monster find(int id) {
-    try(Connection con = DB.sql2o.open()) {
-      String sql = "SELECT * FROM monsters where id=:id";
-      Monster monster = con.createQuery(sql)
-        .addParameter("id", id)
-        .executeAndFetchFirst(Monster.class);
-      return monster;
-    }
+  public void startTimer(){
+    Monster currentMonster = this;
+    TimerTask timerTask = new TimerTask(){
+      @Override
+      public void run() {
+        if (currentMonster.isAlive() == false){
+          cancel();
+        }
+        depleteLevels();
+      }
+    };
+    this.timer.schedule(timerTask, 0, 600);
   }
 
   @Override

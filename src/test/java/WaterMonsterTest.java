@@ -5,14 +5,13 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.text.DateFormat;
 
-
 public class WaterMonsterTest {
 
   @Rule
   public DatabaseRule database = new DatabaseRule();
 
   @Test
-  public void WaterMonster_instantiatesCorrectly_true() {
+  public void waterMonster_instantiatesCorrectly_true() {
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     assertEquals(true, testWaterMonster instanceof WaterMonster);
   }
@@ -37,7 +36,7 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void save_returnsTrueIfDescriptionsAretheSame() {
+  public void save_successfullyAddsWaterMonsterToDatabase_List() {
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     testWaterMonster.save();
     assertTrue(WaterMonster.all().get(0).equals(testWaterMonster));
@@ -55,7 +54,7 @@ public class WaterMonsterTest {
   public void all_returnsAllInstancesOfWaterMonster_true() {
     WaterMonster firstWaterMonster = new WaterMonster("Bubbles", 1);
     firstWaterMonster.save();
-    WaterMonster secondWaterMonster = new WaterMonster("Spud", 1);
+    WaterMonster secondWaterMonster = new WaterMonster("Spud", 3);
     secondWaterMonster.save();
     assertEquals(true, WaterMonster.all().get(0).equals(firstWaterMonster));
     assertEquals(true, WaterMonster.all().get(1).equals(secondWaterMonster));
@@ -81,19 +80,25 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void monster_instantiatesWithHalfFullPlayLevel(){
+  public void waterMonster_instantiatesWithHalfFullPlayLevel(){
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     assertEquals(testWaterMonster.getPlayLevel(), (WaterMonster.MAX_PLAY_LEVEL / 2));
   }
 
   @Test
-  public void monster_instantiatesWithHalfFullSleepLevel(){
+  public void waterMonster_instantiatesWithHalfFullSleepLevel(){
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     assertEquals(testWaterMonster.getSleepLevel(), (WaterMonster.MAX_SLEEP_LEVEL / 2));
   }
 
   @Test
-  public void monster_instantiatesWithHalfFullFoodLevel(){
+  public void waterMonster_instantiatesWithHalfFullFoodLevel(){
+    WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
+    assertEquals(testWaterMonster.getFoodLevel(), (WaterMonster.MAX_FOOD_LEVEL / 2));
+  }
+
+  @Test
+  public void play_increasesPlayLevelValue_(){
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     assertEquals(testWaterMonster.getFoodLevel(), (WaterMonster.MAX_FOOD_LEVEL / 2));
   }
@@ -111,6 +116,7 @@ public class WaterMonsterTest {
     assertEquals(testWaterMonster.getFoodLevel(), (WaterMonster.MAX_FOOD_LEVEL / 2) - 1);
     assertEquals(testWaterMonster.getSleepLevel(), (WaterMonster.MAX_SLEEP_LEVEL / 2) - 1);
     assertEquals(testWaterMonster.getPlayLevel(), (WaterMonster.MAX_PLAY_LEVEL / 2) - 1);
+    assertEquals(testWaterMonster.getWaterLevel(), (WaterMonster.MAX_WATER_LEVEL / 2) - 1);
   }
 
   @Test
@@ -144,14 +150,12 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void monster_foodLevelCannotGoBeyondMaxValue(){
+  public void waterMonster_foodLevelCannotGoBeyondMaxValue(){
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
-    for(int i = WaterMonster.MIN_ALL_LEVELS; i <= (WaterMonster.MAX_FOOD_LEVEL + 2); i++){
+    for(int i = WaterMonster.MIN_ALL_LEVELS; i <= (WaterMonster.MAX_FOOD_LEVEL); i++){
       try {
         testWaterMonster.feed();
-      } catch (UnsupportedOperationException exception) {
-        //we don't necessarily need to do anything with the exception after we catch it; we simply need to catch it to prevent JUnit from halting, and the test from failing unnecessarily.
-      }
+      } catch (UnsupportedOperationException exception){ }
     }
     assertTrue(testWaterMonster.getFoodLevel() <= WaterMonster.MAX_FOOD_LEVEL);
   }
@@ -173,7 +177,7 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void monster_playLevelCannotGoBeyondMaxValue(){
+  public void waterMonster_playLevelCannotGoBeyondMaxValue(){
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     for(int i = WaterMonster.MIN_ALL_LEVELS; i <= (WaterMonster.MAX_PLAY_LEVEL); i++){
       try {
@@ -192,7 +196,15 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void monster_sleepLevelCannotGoBeyondMaxValue(){
+  public void save_assignsIdToObject() {
+    WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
+    testWaterMonster.save();
+    WaterMonster savedWaterMonster = WaterMonster.all().get(0);
+    assertEquals(testWaterMonster.getId(), savedWaterMonster.getId());
+  }
+
+  @Test
+  public void waterMonster_sleepLevelCannotGoBeyondMaxValue(){
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     for(int i = WaterMonster.MIN_ALL_LEVELS; i <= (WaterMonster.MAX_SLEEP_LEVEL); i++){
       try {
@@ -212,13 +224,13 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void play_recordsTimeLastPlayedInDatabase() {
+  public void sleep_recordsTimeLastSleptInDatabase() {
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     testWaterMonster.save();
-    testWaterMonster.play();
-    Timestamp savedWaterMonsterLastPlayed = WaterMonster.find(testWaterMonster.getId()).getLastPlayed();
+    testWaterMonster.sleep();
+    Timestamp savedWaterMonsterLastSlept = WaterMonster.find(testWaterMonster.getId()).getLastSlept();
     Timestamp rightNow = new Timestamp(new Date().getTime());
-    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedWaterMonsterLastPlayed));
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedWaterMonsterLastSlept));
   }
 
   @Test
@@ -232,13 +244,13 @@ public class WaterMonsterTest {
   }
 
   @Test
-  public void sleep_recordsTimeLastSleptInDatabase() {
+  public void play_recordsTimeLastPlayedInDatabase() {
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
     testWaterMonster.save();
-    testWaterMonster.sleep();
-    Timestamp savedWaterMonsterLastSlept = WaterMonster.find(testWaterMonster.getId()).getLastSlept();
+    testWaterMonster.play();
+    Timestamp savedWaterMonsterLastPlayed = WaterMonster.find(testWaterMonster.getId()).getLastPlayed();
     Timestamp rightNow = new Timestamp(new Date().getTime());
-    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedWaterMonsterLastSlept));
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedWaterMonsterLastPlayed));
   }
 
   @Test
@@ -253,20 +265,6 @@ public class WaterMonsterTest {
     assertTrue(firstPlayLevel > secondPlayLevel);
   }
 
-  public void startTimer(){
-    WaterMonster currentWaterMonster = this;
-    TimerTask timerTask = new TimerTask(){
-      @Override
-      public void run() {
-        if (currentWaterMonster.isAlive() == false){
-          cancel();
-        }
-        depleteLevels();
-      }
-    };
-    this.timer.schedule(timerTask, 0, 600);
-  }
-
   @Test
   public void timer_haltsAfterWaterMonsterDies() {
     WaterMonster testWaterMonster = new WaterMonster("Bubbles", 1);
@@ -276,5 +274,26 @@ public class WaterMonsterTest {
     } catch (InterruptedException exception){}
     assertFalse(testWaterMonster.isAlive());
     assertTrue(testWaterMonster.getFoodLevel() >= 0);
+  }
+
+  @Test
+  public void waterMonster_instantiatesWithHalfFullWaterLevel(){
+    WaterMonster testWaterMonster = new WaterMonster("Drippy", 1);
+    assertEquals(testWaterMonster.getWaterLevel(), (WaterMonster.MAX_WATER_LEVEL / 2));
+  }
+
+  @Test
+  public void water_increasesWaterMonsterWaterLevel(){
+    WaterMonster testWaterMonster = new WaterMonster("Drippy", 1);
+    testWaterMonster.water();
+    assertTrue(testWaterMonster.getWaterLevel() > (WaterMonster.MAX_WATER_LEVEL / 2));
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void water_throwsExceptionIfWaterLevelIsAtMaxValue(){
+    WaterMonster testWaterMonster = new WaterMonster("Drippy", 1);
+    for(int i = WaterMonster.MIN_ALL_LEVELS; i <= (WaterMonster.MAX_WATER_LEVEL); i++){
+      testWaterMonster.water();
+    }
   }
 }
